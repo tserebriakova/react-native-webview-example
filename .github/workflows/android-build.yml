@@ -34,7 +34,7 @@ jobs:
 
       # 5. Ставим npm-зависимости
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       # 6. Делаем gradlew исполняемым
       - name: Make gradlew executable

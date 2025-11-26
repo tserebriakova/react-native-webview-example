@@ -1,0 +1,53 @@
+name: Android build pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Забираем код из репозитория
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Ставим Node.js (для React Native)
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # 3. Ставим Java 17
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # 4. Ставим Android SDK
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      # 5. Ставим npm-зависимости
+      - name: Install dependencies
+        run: npm ci
+
+      # 6. Делаем gradlew исполняемым
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+
+      # 7. Собираем debug APK
+      - name: Build Debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug
+
+      # 8. Сохраняем APK как artifact
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: webview-debug-apk
+          path: android/app/build/outputs/apk/debug/*.apk
